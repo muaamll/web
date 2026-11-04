@@ -1,0 +1,44 @@
+/* ===== reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== base ===== */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  padding: 20px;
+  color: #222;
+  background: #fff;
+}
+
+div{
+  margin: 10%;
+  height: 100px;
+ width: 25%;
+ border: 2px solid black;
+ background-color: azure;
+}
+div p{
+  display: none;
+}
+div:hover{
+  background-color: dimgray;
+}
+div:hover p{
+  display: block;
+  color: cornsilk;
+}
+#pseud::selection{
+  color: white;
+  background-color: red;
+
+}
+#pseud::first-letter{
+  font-size: 20px;
+  color: blueviolet;
+}
+
+/* ===== اكتب ستايلك من هنا ===== */

@@ -1,0 +1,29 @@
+/* ===== reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== base ===== */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  padding: 20px;
+  color: #222;
+  background: #fff;
+}
+.container{
+width: 200px;
+border: 2px solid red;
+height: 50px;
+box-sizing: border-box;
+}
+.container1{
+  width: 200px;
+  border: 2px solid red;
+  height: 50px;
+  box-sizing: content-box;
+}
+
+/* ===== اكتب ستايلك من هنا ===== */

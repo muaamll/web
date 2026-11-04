@@ -1,0 +1,48 @@
+/* ===== reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== base ===== */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  padding: 20px;
+  color: #222;
+  background: #fff;
+}
+
+h1 {
+  margin-bottom: 16px;
+}
+.container{
+  margin-left: 5%;
+  margin-top: 2%;
+  display: flex;
+  flex-direction: row;
+  justify-content:flex-start ;
+  flex-wrap: wrap;
+}
+.box1,.box2,.box3{
+  border: groove lavender 3px;
+  margin: 2% 0;
+}
+.box3{
+  /* order: 1; */
+  flex: 2;
+  flex-basis: 20%;
+}
+.box2{
+  /* order: 3; */
+  flex: 1;
+  flex-basis: 25%;
+}
+.box3{
+  /* order: 2; */
+  flex: 1;
+  flex-basis: 25%;
+}
+
+/* ===== اكتب ستايلك من هنا ===== */

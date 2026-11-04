@@ -1,0 +1,26 @@
+/* ===== reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== base ===== */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  padding: 20px;
+  color: #222;
+  background: #fff;
+}
+
+div{
+  width: 40%;
+  margin: 2%;
+  border: 2px solid black;
+  overflow:hidden ;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== اكتب ستايلك من هنا ===== */

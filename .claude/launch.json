@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "iraqi-calories",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5510", "-d", "practice/iraqi-calories"],
+      "port": 5510
+    }
+  ]
+}

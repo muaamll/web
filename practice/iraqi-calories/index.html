@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1f6f4a">
+  <title>سعراتي العراقي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>سعراتي <span>العراقي</span></h1>
+    <div class="date-nav">
+      <button id="prevDay" aria-label="اليوم السابق">›</button>
+      <span id="dateLabel">اليوم</span>
+      <button id="nextDay" aria-label="اليوم التالي">‹</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== اليوم ===== -->
+    <section id="view-today" class="view active">
+      <div class="card summary">
+        <div class="ring" id="ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"/>
+          </svg>
+          <div class="ring-text">
+            <strong id="remaining">0</strong>
+            <small id="remainingLabel">باقي</small>
+          </div>
+        </div>
+        <div class="summary-stats">
+          <div><small>الهدف</small><b id="goalVal">0</b></div>
+          <div><small>أكلت</small><b id="eatenVal">0</b></div>
+        </div>
+        <div class="macros">
+          <div class="macro"><span>بروتين</span><div class="bar"><i id="barP"></i></div><small id="valP">0 غ</small></div>
+          <div class="macro"><span>كارب</span><div class="bar"><i id="barC"></i></div><small id="valC">0 غ</small></div>
+          <div class="macro"><span>دهون</span><div class="bar"><i id="barF"></i></div><small id="valF">0 غ</small></div>
+        </div>
+      </div>
+
+      <div id="meals"></div>
+    </section>
+
+    <!-- ===== إضافة ===== -->
+    <section id="view-add" class="view">
+      <button class="scan-btn" id="openScanner">
+        <svg viewBox="0 0 24 24" width="28" height="28"><path d="M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3M7 8v8M10 8v8M13 8v8M16 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        اقرأ باركود
+      </button>
+
+      <form class="barcode-manual" id="manualBarcodeForm">
+        <input id="manualBarcode" inputmode="numeric" placeholder="أو اكتب رقم الباركود" autocomplete="off">
+        <button type="submit">بحث</button>
+      </form>
+
+      <input type="search" id="searchInput" class="search" placeholder="دوّر على أكلة... (دولمة، تمن، كباب)">
+      <div class="chips" id="catChips"></div>
+      <div class="food-list" id="foodList"></div>
+    </section>
+
+    <!-- ===== قاعدتي ===== -->
+    <section id="view-db" class="view">
+      <div class="card info">
+        <h2>قاعدة الباركودات</h2>
+        <p>أي منتج تقرأ باركوده ينحفظ هنا. إذا ما لگيناه بقاعدة Open Food Facts العالمية تگدر تضيفه انت (المعلومات مكتوبة على ظهر العلبة).</p>
+        <button class="btn" id="addProductBtn">+ أضف منتج يدوياً</button>
+      </div>
+      <div class="food-list" id="productList"></div>
+    </section>
+
+    <!-- ===== الإعدادات ===== -->
+    <section id="view-settings" class="view">
+      <form class="card form" id="profileForm">
+        <h2>احسب هدفك اليومي</h2>
+        <div class="row">
+          <label>الجنس
+            <select name="sex"><option value="m">ذكر</option><option value="f">أنثى</option></select>
+          </label>
+          <label>العمر <input name="age" type="number" min="10" max="100" required></label>
+        </div>
+        <div class="row">
+          <label>الطول (سم) <input name="height" type="number" min="100" max="230" required></label>
+          <label>الوزن (كغ) <input name="weight" type="number" min="30" max="250" step="0.1" required></label>
+        </div>
+        <label>النشاط
+          <select name="activity">
+            <option value="1.2">قاعد أغلب الوقت</option>
+            <option value="1.375">نشاط خفيف (1-3 أيام رياضة)</option>
+            <option value="1.55">نشاط متوسط (3-5 أيام)</option>
+            <option value="1.725">نشاط عالي (6-7 أيام)</option>
+          </select>
+        </label>
+        <label>الهدف
+          <select name="goal">
+            <option value="-500">أنزل وزن</option>
+            <option value="0">أثبت وزني</option>
+            <option value="300">أزيد وزن</option>
+          </select>
+        </label>
+        <button class="btn" type="submit">احسب واحفظ</button>
+        <p class="result" id="profileResult"></p>
+      </form>
+
+      <form class="card form" id="goalForm">
+        <h2>أو حط الهدف بنفسك</h2>
+        <div class="row">
+          <input name="goal" type="number" min="800" max="6000" placeholder="مثلاً 2000" required>
+          <button class="btn" type="submit">حفظ</button>
+        </div>
+      </form>
+
+      <p class="note">القيم الغذائية للأكلات العراقية تقريبية — كل بيت يطبخ بكمية دهن ولحم مختلفة.</p>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <button data-view="today" class="active"><span>🍽️</span>اليوم</button>
+    <button data-view="add"><span>➕</span>إضافة</button>
+    <button data-view="db"><span>📦</span>قاعدتي</button>
+    <button data-view="settings"><span>⚙️</span>الإعدادات</button>
+  </nav>
+
+  <!-- ===== نافذة الكمية ===== -->
+  <dialog id="portionDialog" class="sheet">
+    <form method="dialog" id="portionForm">
+      <div class="sheet-head">
+        <img id="pdImage" alt="" hidden>
+        <div>
+          <h3 id="pdName"></h3>
+          <small id="pdSub"></small>
+        </div>
+      </div>
+      <div class="portion-picker">
+        <button type="button" class="step" data-step="-0.5">−</button>
+        <div>
+          <input id="pdQty" type="number" min="0.25" step="0.25" value="1">
+          <small id="pdUnit"></small>
+        </div>
+        <button type="button" class="step" data-step="0.5">+</button>
+      </div>
+      <label class="grams">أو بالغرام <input id="pdGrams" type="number" min="1"></label>
+      <div class="pd-result">
+        <strong id="pdKcal">0</strong> سعرة
+        <small id="pdMacros"></small>
+      </div>
+      <label>الوجبة
+        <select id="pdMeal">
+          <option value="breakfast">ريوگ</option>
+          <option value="lunch">غدا</option>
+          <option value="dinner">عشا</option>
+          <option value="snack">سناك</option>
+        </select>
+      </label>
+      <div class="sheet-actions">
+        <button value="cancel" class="btn ghost">إلغاء</button>
+        <button value="ok" class="btn" id="pdAdd">أضف</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== نافذة السكانر ===== -->
+  <dialog id="scanDialog" class="sheet">
+    <h3>وجّه الكاميرا على الباركود</h3>
+    <div id="reader"></div>
+    <p class="scan-status" id="scanStatus"></p>
+    <label class="btn ghost file-btn">📷 اقرأ من صورة
+      <input type="file" accept="image/*" id="scanFile" hidden>
+    </label>
+    <button class="btn ghost" id="closeScanner">سد</button>
+  </dialog>
+
+  <!-- ===== نافذة إضافة منتج ===== -->
+  <dialog id="productDialog" class="sheet">
+    <form method="dialog" id="productForm" class="form">
+      <h3>منتج جديد</h3>
+      <p class="hint" id="productHint"></p>
+      <label>الباركود <input name="barcode" inputmode="numeric" required></label>
+      <label>اسم المنتج <input name="name" required></label>
+      <label>الماركة <input name="brand"></label>
+      <p class="hint">القيم لكل 100 غرام (مكتوبة على العلبة)</p>
+      <div class="row">
+        <label>سعرات <input name="kcal" type="number" step="0.1" min="0" required></label>
+        <label>بروتين <input name="p" type="number" step="0.1" min="0" value="0"></label>
+      </div>
+      <div class="row">
+        <label>كارب <input name="c" type="number" step="0.1" min="0" value="0"></label>
+        <label>دهون <input name="f" type="number" step="0.1" min="0" value="0"></label>
+      </div>
+      <label>وزن الحصة / العلبة (غ) <input name="portion" type="number" min="1" value="100"></label>
+      <div class="sheet-actions">
+        <button value="cancel" class="btn ghost" formnovalidate>إلغاء</button>
+        <button value="ok" class="btn">حفظ</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="data/iraqi-foods.js"></script>
+  <script src="db.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

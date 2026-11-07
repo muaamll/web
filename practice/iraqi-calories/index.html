@@ -54,6 +54,18 @@
         اقرأ باركود
       </button>
 
+      <form class="card ai-card" id="aiForm">
+        <h2>✨ اشرح شنو أكلت</h2>
+        <textarea id="aiText" rows="2" placeholder="مثلاً: ماعون تمن ويا مرگة باميا، صمونة، واستكانين چاي"></textarea>
+        <img id="aiPreview" alt="" hidden>
+        <div class="ai-actions">
+          <label class="btn ghost file-btn">📷 صورة الأكل
+            <input type="file" accept="image/*" id="aiImage" hidden>
+          </label>
+          <button class="btn" type="submit" id="aiSubmit">احسب السعرات</button>
+        </div>
+      </form>
+
       <form class="barcode-manual" id="manualBarcodeForm">
         <input id="manualBarcode" inputmode="numeric" placeholder="أو اكتب رقم الباركود" autocomplete="off">
         <button type="submit">بحث</button>
@@ -113,6 +125,18 @@
           <input name="goal" type="number" min="800" max="6000" placeholder="مثلاً 2000" required>
           <button class="btn" type="submit">حفظ</button>
         </div>
+      </form>
+
+      <form class="card form" id="keyForm">
+        <h2>✨ مفتاح الذكاء الاصطناعي</h2>
+        <p class="hint">حتى تشتغل خاصية "اشرح شنو أكلت" والصور، تحتاج مفتاح Claude API من
+          <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com</a>.
+          المفتاح ينحفظ بس بهذا الجهاز، وكل تحليل يكلف سنتات قليلة من رصيدك.</p>
+        <div class="row">
+          <input name="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off">
+          <button class="btn" type="submit">حفظ</button>
+        </div>
+        <p class="result" id="keyStatus"></p>
       </form>
 
       <p class="note">القيم الغذائية للأكلات العراقية تقريبية — كل بيت يطبخ بكمية دهن ولحم مختلفة.</p>
@@ -200,11 +224,34 @@
     </form>
   </dialog>
 
+  <!-- ===== نافذة نتيجة الذكاء الاصطناعي ===== -->
+  <dialog id="aiDialog" class="sheet">
+    <form method="dialog" id="aiResultForm">
+      <h3>هذا اللي حسبته</h3>
+      <p class="hint" id="aiNote"></p>
+      <ul class="ai-items" id="aiItems"></ul>
+      <div class="pd-result"><strong id="aiTotal">0</strong> سعرة</div>
+      <label>الوجبة
+        <select id="aiMeal">
+          <option value="breakfast">ريوگ</option>
+          <option value="lunch">غدا</option>
+          <option value="dinner">عشا</option>
+          <option value="snack">سناك</option>
+        </select>
+      </label>
+      <div class="sheet-actions">
+        <button value="cancel" class="btn ghost">إلغاء</button>
+        <button value="ok" class="btn">أضف للسجل</button>
+      </div>
+    </form>
+  </dialog>
+
   <div class="toast" id="toast"></div>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="data/iraqi-foods.js"></script>
   <script src="db.js"></script>
   <script src="script.js"></script>
+  <script type="module" src="ai.js"></script>
 </body>
 </html>

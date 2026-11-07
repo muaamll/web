@@ -423,6 +423,131 @@ $("goalForm").addEventListener("submit", async (e) => {
   renderToday();
 });
 
+// ===== الذكاء الاصطناعي: اشرح أو صوّر =====
+let aiImageFile = null;
+let aiItems = [];
+
+$("aiImage").addEventListener("change", (e) => {
+  aiImageFile = e.target.files[0] || null;
+  const prev = $("aiPreview");
+  if (prev.src) URL.revokeObjectURL(prev.src);
+  prev.hidden = !aiImageFile;
+  if (aiImageFile) prev.src = URL.createObjectURL(aiImageFile);
+});
+
+const AI_ERRORS = {
+  NO_KEY: "حط مفتاح Claude من الإعدادات أول",
+  BAD_KEY: "المفتاح غلط — تأكد منه بالإعدادات",
+  RATE_LIMIT: "ضغط هواية — انتظر شوية وجرب",
+  NETWORK: "ماكو انترنت",
+  REFUSED: "ما گدر يحلل هذا الطلب",
+  BAD_IMAGE: "الصورة ما انفتحت",
+};
+
+$("aiForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = $("aiText").value;
+  if (!text.trim() && !aiImageFile) { toast("اكتب شنو أكلت أو اختار صورة"); return; }
+  if (!window.AI) { toast("الذكاء الاصطناعي بعده يتحمل — جرب بعد ثواني"); return; }
+
+  const btn = $("aiSubmit");
+  btn.disabled = true;
+  btn.textContent = "دا أحسب... ⏳";
+  try {
+    const result = await window.AI.analyzeMeal({ text, imageFile: aiImageFile });
+    if (!result.items.length) { toast(result.note || "ما لگيت أكل"); return; }
+    openAiResult(result);
+  } catch (err) {
+    const code = String(err.message || "");
+    toast(AI_ERRORS[code] || "صار خطأ: " + code.replace(/^API:/, ""));
+    if (code === "NO_KEY" || code === "BAD_KEY") showView("settings");
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "احسب السعرات";
+  }
+});
+
+function openAiResult(result) {
+  aiItems = result.items.map((it) => {
+    const g = Math.max(1, Number(it.grams) || 1);
+    // نحفظ القيم لكل غرام حتى نعيد الحساب إذا غيرت الوزن
+    return { ...it, on: true, grams: Math.round(g), per: { kcal: it.kcal / g, p: it.p / g, c: it.c / g, f: it.f / g } };
+  });
+  $("aiNote").textContent = result.note || "";
+  $("aiNote").hidden = !result.note;
+  $("aiMeal").value = guessMeal();
+  renderAiItems();
+  $("aiDialog").returnValue = "";
+  $("aiDialog").showModal();
+}
+
+function renderAiItems() {
+  $("aiItems").innerHTML = aiItems.map((it, i) => `
+    <li class="${it.on ? "" : "off"}">
+      <input type="checkbox" data-i="${i}" ${it.on ? "checked" : ""} aria-label="تضمين">
+      <div><b>${esc(it.name)}</b><small>${esc(it.amount)}</small></div>
+      <div>
+        <div class="g"><input type="number" min="1" data-g="${i}" value="${it.grams}">غ</div>
+        <div class="kc">${Math.round(it.per.kcal * it.grams)} سعرة</div>
+      </div>
+    </li>`).join("");
+  updateAiTotal();
+}
+
+function updateAiTotal() {
+  const total = aiItems.filter((it) => it.on).reduce((a, it) => a + it.per.kcal * it.grams, 0);
+  $("aiTotal").textContent = Math.round(total);
+}
+
+$("aiItems").addEventListener("change", (e) => {
+  const cb = e.target.closest("[data-i]");
+  if (cb) { aiItems[cb.dataset.i].on = cb.checked; renderAiItems(); }
+});
+$("aiItems").addEventListener("input", (e) => {
+  const gi = e.target.closest("[data-g]");
+  if (!gi) return;
+  const it = aiItems[gi.dataset.g];
+  it.grams = Math.max(0, Number(gi.value) || 0);
+  gi.closest("li").querySelector(".kc").textContent = Math.round(it.per.kcal * it.grams) + " سعرة";
+  updateAiTotal();
+});
+
+$("aiDialog").addEventListener("close", async () => {
+  if ($("aiDialog").returnValue !== "ok") return;
+  const chosen = aiItems.filter((it) => it.on && it.grams > 0);
+  for (const it of chosen) {
+    await DB.addEntry({
+      date: currentDate,
+      meal: $("aiMeal").value,
+      name: it.name,
+      amount: `${it.amount} · ${it.grams}غ ✨`,
+      kcal: it.per.kcal * it.grams, p: it.per.p * it.grams, c: it.per.c * it.grams, f: it.per.f * it.grams,
+      ref: "ai",
+    });
+  }
+  if (!chosen.length) return;
+  toast(`انضافت ${chosen.length} أكلات ✓`);
+  $("aiText").value = "";
+  $("aiImage").value = "";
+  $("aiImage").dispatchEvent(new Event("change"));
+  showView("today");
+  renderToday();
+});
+
+$("keyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const key = e.target.apiKey.value.trim();
+  await DB.setSetting("apiKey", key);
+  e.target.apiKey.value = "";
+  showKeyStatus(key);
+  toast(key ? "انحفظ المفتاح ✓" : "انمسح المفتاح");
+});
+
+function showKeyStatus(key) {
+  $("keyStatus").textContent = key ? `✓ محفوظ (ينتهي بـ ${key.slice(-4)}) — اتركه فارغ واحفظ حتى تمسحه` : "ماكو مفتاح محفوظ";
+}
+
 // ===== التشغيل =====
 (async function init() {
   goal = await DB.getSetting("goal", 2000);
@@ -434,6 +559,7 @@ $("goalForm").addEventListener("submit", async (e) => {
     }
   }
   $("goalForm").goal.value = goal;
+  showKeyStatus(await DB.getSetting("apiKey", ""));
   renderFoods();
   renderToday();
 })();
